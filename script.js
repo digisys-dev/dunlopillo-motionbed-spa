@@ -484,14 +484,20 @@ class MotionBedApp {
       console.log('⏰ [USER] 홈 버튼 클릭으로 자동 진행 취소');
     }
 
-    // � 자동 홈 이동 타이머 취소
+    // 자동 홈 이동 타이머 취소
     if (this._autoHomeTimer) {
       clearTimeout(this._autoHomeTimer);
       this._autoHomeTimer = null;
       console.log('🏠 [USER] 홈 버튼 수동 클릭으로 자동 홈 이동 타이머 취소');
     }
 
-    // �🎙️ 현재 재생 중인 음성 가이드 중단
+    // 🎵 홈으로 돌아갈 때 배경음악 처음부터 재시작
+    if (window.backgroundMusicSystem?.restart) {
+      window.backgroundMusicSystem.restart();
+      console.log('🎵 [HOME] 배경음악 처음부터 재시작');
+    }
+
+    // 🎙️ 현재 재생 중인 음성 가이드 중단
     if (window.voiceGuideSystem?.stopVoice) {
       window.voiceGuideSystem.stopVoice();
       console.log('🎙️ [USER] 홈 버튼 클릭으로 음성 가이드 중단');

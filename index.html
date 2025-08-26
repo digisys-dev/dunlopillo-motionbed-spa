@@ -677,12 +677,21 @@
       let currentCountdown = 0;
       let isAutoProgressActive = false;
       
-      // 배경 음악 소스들 (동영상에서 오디오만 추출)
+      // 🎵 배경 음악 소스들 - 홈 동영상과 동일한 소스 사용 (음성 트랙만 추출)
       const BACKGROUND_AUDIO_SOURCES = [
+        'assets/videos/home-video-1.mp4',
+        'assets/videos/home-video-2.mp4',
+        'assets/videos/home-video-3.mp4'
+      ];
+
+      // 📦 아카이브: 기존 Cloudinary 배경음악 URL들 (만료로 인해 비활성화)
+      /*
+      const ARCHIVED_BACKGROUND_AUDIO_SOURCES = [
         'https://res.cloudinary.com/di2pd92t1/video/upload/v1748237173/Dunlopillo-Crash-Test-Flexibilitet-web_n045ph.mp4',
         'https://res.cloudinary.com/di2pd92t1/video/upload/v1748237657/Dunlopillo-Crash-Test-Stabilitet-web_mvxr27.mp4',
         'https://res.cloudinary.com/di2pd92t1/video/upload/v1748241410/Dunlopillo-Crash-Test-Allergivenlig-A%CC%8Andba%CC%8Ar-web_wxolsb.mp4'
       ];
+      */
 
       // 페이지별 음성 파일 매핑 (실제 로컬 파일 기준)
       const VOICE_SCRIPTS = {
@@ -771,10 +780,23 @@
           audio: backgroundAudio,
           toggle: toggleBackgroundMusic,
           isEnabled: () => isMusicEnabled,
-          syncWithHomeVideo: syncMusicWithHomeVideo
+          restart: () => {
+            // 홈으로 돌아갈 때 처음부터 재생
+            currentAudioIndex = 0;
+            backgroundAudio.src = BACKGROUND_AUDIO_SOURCES[currentAudioIndex];
+            if (isMusicEnabled) {
+              backgroundAudio.play().catch(error => {
+                console.warn('음악 재시작 실패:', error);
+              });
+            }
+            console.log('🎵 [RESTART] 배경음악 처음부터 재시작');
+          },
+          getCurrentTrack: () => currentAudioIndex + 1,
+          getTotalTracks: () => BACKGROUND_AUDIO_SOURCES.length
         };
         
-        console.log('🎵 배경 음악 시스템 초기화 완료');
+        console.log('🎵 배경음악 시스템 초기화 완료 (홈 동영상 기반)');
+        console.log('🎵 음악 소스:', BACKGROUND_AUDIO_SOURCES);
       }
 
       // 🎙️ AI 음성 가이드 시스템 초기화

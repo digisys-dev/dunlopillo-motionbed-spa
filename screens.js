@@ -6,13 +6,22 @@
 const USE_GOOGLE_DRIVE = false; // Google Drive 이미지 사용
 
 /**
- * 🎬 간단한 동영상 설정 (참고 코드 방식)
+ * 🎬 로컬 동영상 설정 (assets/videos/ 폴더 사용)
  */
 const VIDEO_SOURCES = [
+  "assets/videos/home-video-1.mp4",
+  "assets/videos/home-video-2.mp4",
+  "assets/videos/home-video-3.mp4"
+];
+
+// 📦 아카이브: Cloudinary 동영상 URL들 (만료로 인해 비활성화)
+/*
+const ARCHIVED_CLOUDINARY_VIDEO_SOURCES = [
   "https://res.cloudinary.com/di2pd92t1/video/upload/v1753767432/%E1%84%83%E1%85%A5%E1%86%AB%E1%84%85%E1%85%A9%E1%86%B8_video_01_tt5wqe.mp4",
   "https://res.cloudinary.com/di2pd92t1/video/upload/v1753767434/%E1%84%83%E1%85%A5%E1%86%AB%E1%84%85%E1%85%A9%E1%86%B8_video_02_n8rnf8.mp4", 
   "https://res.cloudinary.com/di2pd92t1/video/upload/v1753767442/%E1%84%83%E1%85%A5%E1%86%AB%E1%84%85%E1%85%A9%E1%86%B8_video_03_x67vjb.mp4"
 ];
+*/
 
 // 동영상 사용 여부
 const USE_VIDEO_BACKGROUND = true;
@@ -21,7 +30,7 @@ const USE_VIDEO_BACKGROUND = true;
 window.VIDEO_SOURCES = VIDEO_SOURCES;
 window.USE_VIDEO_BACKGROUND = USE_VIDEO_BACKGROUND;
 
-console.log('🎬 screens.js에서 동영상 설정 완료:', { VIDEO_SOURCES, USE_VIDEO_BACKGROUND });
+console.log('🎬 screens.js에서 로컬 동영상 설정 완료:', { VIDEO_SOURCES, USE_VIDEO_BACKGROUND });
 
 // Google Drive 이미지 URL들 - 다단계 최적화 방식
 // 1. 썸네일 (즉시 로드) -> 2. 고해상도 (백그라운드 로드) -> 3. 폴백 (로컬)

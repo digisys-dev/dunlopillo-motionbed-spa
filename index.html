@@ -677,16 +677,18 @@
       let currentCountdown = 0;
       let isAutoProgressActive = false;
       
-      // 🎵 배경 음악 소스들 - 홈 동영상과 동일한 소스 사용 (음성 트랙만 추출)
-      const BACKGROUND_AUDIO_SOURCES = [
-        'assets/videos/home-video-1.mp4',
-        'assets/videos/home-video-2.mp4',
-        'assets/videos/home-video-3.mp4'
-      ];
+      // 🎵 배경 음악 소스 - 전용 배경음악 파일 사용 (무한 반복)
+      const BACKGROUND_AUDIO_SOURCE = 'assets/videos/Dunlopillo-background-sound.mp3';
 
-      // 📦 아카이브: 기존 Cloudinary 배경음악 URL들 (만료로 인해 비활성화)
+      // 📦 아카이브: 기존 배경음악 URL들 (더 이상 사용하지 않음)
       /*
       const ARCHIVED_BACKGROUND_AUDIO_SOURCES = [
+        'assets/videos/home-video-1.mp4',
+        'assets/videos/home-video-2.mp4', 
+        'assets/videos/home-video-3.mp4'
+      ];
+      
+      const ARCHIVED_CLOUDINARY_BACKGROUND_AUDIO_SOURCES = [
         'https://res.cloudinary.com/di2pd92t1/video/upload/v1748237173/Dunlopillo-Crash-Test-Flexibilitet-web_n045ph.mp4',
         'https://res.cloudinary.com/di2pd92t1/video/upload/v1748237657/Dunlopillo-Crash-Test-Stabilitet-web_mvxr27.mp4',
         'https://res.cloudinary.com/di2pd92t1/video/upload/v1748241410/Dunlopillo-Crash-Test-Allergivenlig-A%CC%8Andba%CC%8Ar-web_wxolsb.mp4'
@@ -748,29 +750,28 @@
       function initBackgroundMusic() {
         // 배경 음악 요소 생성
         backgroundAudio = document.createElement('audio');
-        backgroundAudio.loop = false; // 개별 트랙이 끝나면 다음으로
+        backgroundAudio.loop = true; // 무한 반복 재생
         backgroundAudio.volume = 1.0; // 최대 볼륨 (100%)
         backgroundAudio.preload = 'auto';
         
-        // 첫 번째 소스 설정
-        backgroundAudio.src = BACKGROUND_AUDIO_SOURCES[currentAudioIndex];
+        // 배경음악 소스 설정
+        backgroundAudio.src = BACKGROUND_AUDIO_SOURCE;
         
         // 재생 시작 로그 추가
         backgroundAudio.addEventListener('play', () => {
           console.log('🎵 [PLAY] 배경음악 재생 시작:', backgroundAudio.src);
-          console.trace('🎵 [TRACE] 재생 호출 스택:');
+          console.log('🎵 [LOOP] 무한 반복 모드');
         });
         
-        // 트랙 종료 시 다음 트랙으로 자동 전환
-        backgroundAudio.addEventListener('ended', () => {
-          currentAudioIndex = (currentAudioIndex + 1) % BACKGROUND_AUDIO_SOURCES.length;
-          backgroundAudio.src = BACKGROUND_AUDIO_SOURCES[currentAudioIndex];
-          if (isMusicEnabled) {
-            console.log('🎵 [AUTO] 다음 트랙 자동 재생:', backgroundAudio.src);
-            backgroundAudio.play().catch(error => {
-              console.warn('다음 트랙 재생 실패:', error);
-            });
-          }
+        // 로드 완료 이벤트
+        backgroundAudio.addEventListener('loadeddata', () => {
+          console.log('🎵 [LOADED] 배경음악 로드 완료:', backgroundAudio.src);
+        });
+        
+        // 에러 이벤트
+        backgroundAudio.addEventListener('error', (e) => {
+          console.error('🎵 [ERROR] 배경음악 로드 실패:', e);
+          console.error('🎵 [ERROR] 소스:', backgroundAudio.src);
         });
         
         // 전역에서 접근 가능하도록 설정
@@ -782,21 +783,18 @@
           isEnabled: () => isMusicEnabled,
           restart: () => {
             // 홈으로 돌아갈 때 처음부터 재생
-            currentAudioIndex = 0;
-            backgroundAudio.src = BACKGROUND_AUDIO_SOURCES[currentAudioIndex];
+            backgroundAudio.currentTime = 0; // 처음부터 재생
             if (isMusicEnabled) {
               backgroundAudio.play().catch(error => {
                 console.warn('음악 재시작 실패:', error);
               });
             }
             console.log('🎵 [RESTART] 배경음악 처음부터 재시작');
-          },
-          getCurrentTrack: () => currentAudioIndex + 1,
-          getTotalTracks: () => BACKGROUND_AUDIO_SOURCES.length
+          }
         };
         
-        console.log('🎵 배경음악 시스템 초기화 완료 (홈 동영상 기반)');
-        console.log('🎵 음악 소스:', BACKGROUND_AUDIO_SOURCES);
+        console.log('🎵 배경음악 시스템 초기화 완료 (전용 배경음악)');
+        console.log('🎵 음악 소스:', BACKGROUND_AUDIO_SOURCE);
       }
 
       // 🎙️ AI 음성 가이드 시스템 초기화
@@ -1229,10 +1227,17 @@
           // 음악 켜기
           isMusicEnabled = true;
           if (backgroundAudio) {
+            // 소스가 설정되지 않은 경우 배경음악 소스로 설정
+            if (!backgroundAudio.src) {
+              backgroundAudio.src = BACKGROUND_AUDIO_SOURCE;
+              console.log('🎵 배경음악 소스 설정:', backgroundAudio.src);
+            }
+            
             backgroundAudio.play().then(() => {
               console.log('🎵 배경 음악 활성화');
             }).catch(error => {
               console.warn('배경 음악 재생 실패:', error);
+              console.log('🎵 브라우저 자동재생 정책으로 인한 실패일 수 있습니다');
             });
           }
         }
@@ -1283,12 +1288,9 @@
         setTimeout(() => {
           const homeVideo = document.getElementById('homeBackgroundVideo');
           if (homeVideo) {
-            homeVideo.muted = true; // 홈 동영상 음소거
+            homeVideo.muted = true; // 홈 동영상 음소거 (이미 HTML에서 설정됨)
             homeVideo.volume = 0;
-            console.log('🔇 홈 화면 동영상 오디오 음소거');
-            
-            // 배경 음악도 함께 비활성화
-            syncMusicWithHomeVideo();
+            console.log('🔇 홈 화면 동영상 오디오 음소거 (확인)');
           }
         }, 1000);
       }

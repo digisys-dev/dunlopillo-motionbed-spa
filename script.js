@@ -993,6 +993,7 @@ class MotionBedApp {
           id="homeBackgroundVideo" 
           src="${startVideo}"
           autoplay 
+          muted
           playsinline 
           loop
           style="width: 100%; height: 100%; object-fit: cover;">
